@@ -408,9 +408,12 @@ updateGallery();
 // Arrastar peças do robô
 let draggedElement = null;
 let offsetX, offsetY;
+let isDragging = false;
 
 document.addEventListener('mousedown', (e) => {
     if (e.target.classList.contains('robot-part')) {
+        e.preventDefault();
+        isDragging = false;
         draggedElement = e.target;
         const rect = draggedElement.getBoundingClientRect();
         offsetX = e.clientX - rect.left;
@@ -421,11 +424,17 @@ document.addEventListener('mousedown', (e) => {
 
 document.addEventListener('mousemove', (e) => {
     if (draggedElement) {
+        isDragging = true;
+        e.preventDefault();
         const canvas = document.getElementById('robotCanvas');
         const canvasRect = canvas.getBoundingClientRect();
         
         let x = e.clientX - canvasRect.left - offsetX;
         let y = e.clientY - canvasRect.top - offsetY;
+        
+        // Limitar movimento dentro do canvas
+        x = Math.max(0, Math.min(x, canvasRect.width - 50));
+        y = Math.max(0, Math.min(y, canvasRect.height - 50));
         
         draggedElement.style.left = x + 'px';
         draggedElement.style.top = y + 'px';
@@ -434,13 +443,59 @@ document.addEventListener('mousemove', (e) => {
 });
 
 document.addEventListener('mouseup', () => {
-// Mensagem de boas-vindas
-setTimeout(() => {
-    alert('🤖 Bem-vindo à Fábrica de Robôs! 🤖\n\n📚 Responda perguntas de matemática para desbloquear peças!\n🎯 5 respostas corretas = 1 nível completo\n✨ 6 níveis para desbloquear todas as peças\n🎨 Personalize e divirta-se!\n\nBoa sorte! 🚀');
-}, 500);
+    if (draggedElement) {
+        draggedElement.style.cursor = 'move';
+        draggedElement = null;
+    }
+    isDragging = false;
 });
 
-// Mensagem de boas-vindas
-setTimeout(() => {
-    alert('🤖 Bem-vindo à Fábrica de Robôs! 🤖\n\n✨ Clique nas peças para adicionar ao robô\n🎨 Escolha cores para personalizar\n💾 Salve seus robôs favoritos\n🎬 Faça seu robô dançar!\n\nDivirta-se criando! 🚀');
-}, 500);
+// Suporte para toque (mobile)
+document.addEventListener('touchstart', (e) => {
+    if (e.target.classList.contains('robot-part')) {
+        e.preventDefault();
+        isDragging = false;
+        draggedElement = e.target;
+        const touch = e.touches[0];
+        const rect = draggedElement.getBoundingClientRect();
+        offsetX = touch.clientX - rect.left;
+        offsetY = touch.clientY - rect.top;
+    }
+}, { passive: false });
+
+document.addEventListener('touchmove', (e) => {
+    if (draggedElement) {
+        isDragging = true;
+        e.preventDefault();
+        const touch = e.touches[0];
+        const canvas = document.getElementById('robotCanvas');
+        const canvasRect = canvas.getBoundingClientRect();
+        
+        let x = touch.clientX - canvasRect.left - offsetX;
+        let y = touch.clientY - canvasRect.top - offsetY;
+        
+        x = Math.max(0, Math.min(x, canvasRect.width - 50));
+        y = Math.max(0, Math.min(y, canvasRect.height - 50));
+        
+        draggedElement.style.left = x + 'px';
+        draggedElement.style.top = y + 'px';
+        draggedElement.style.transform = 'none';
+    }
+}, { passive: false });
+
+document.addEventListener('touchend', () => {
+    if (draggedElement) {
+        draggedElement.style.cursor = 'move';
+        draggedElement = null;
+    }
+    isDragging = false;
+});
+
+// Mensagem de boas-vindas (apenas uma vez)
+let welcomeShown = sessionStorage.getItem('welcomeShown');
+if (!welcomeShown) {
+    setTimeout(() => {
+        alert('🤖 Bem-vindo à Amostra Literária! 🤖\n\n📚 Responda perguntas de matemática para desbloquear peças!\n🎯 5 respostas corretas = 1 nível completo\n✨ 6 níveis para desbloquear todas as peças\n🎨 Personalize e divirta-se!\n\nBoa sorte! 🚀');
+        sessionStorage.setItem('welcomeShown', 'true');
+    }, 500);
+}
