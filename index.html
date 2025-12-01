@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Fábrica de Robôs - Crie Seu Robô!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <header>
+            <h1>🤖 FÁBRICA DE ROBÔS 🤖</h1>
+            <p class="subtitle">✨ Crie, Personalize e Anime Seu Robô dos Sonhos! ✨</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Painel de Peças -->
+            <div class="panel">
+                <h2>🔧 Peças</h2>
+                <div id="mathQuizPanel" class="math-quiz-panel">
+                    <h3 style="color: #667eea; text-align: center; margin-bottom: 15px;">📚 Desbloqueie Peças!</h3>
+                    <div class="level-info">
+                        <span class="level-badge">Nível <span id="currentLevel">1</span></span>
+                        <span class="score-badge">🏆 <span id="correctAnswers">0</span>/5</span>
+                    </div>
+                    <div id="questionContainer" class="question-container">
+                        <p class="question-text" id="questionText"></p>
+                        <div class="answer-options" id="answerOptions"></div>
+                    </div>
+                    <div class="unlock-message" id="unlockMessage"></div>
+                </div>
+                <p style="text-align: center; color: #666; margin-bottom: 10px;">Responda perguntas para desbloquear!</p>
+                
+                <div class="parts-grid">
+                    <div class="part-item locked" data-part="head" data-emoji="🤖" data-level="1">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">🤖</div>
+                        <div class="part-name">Cabeça</div>
+                    </div>
+                    <div class="part-item locked" data-part="head" data-emoji="👾" data-level="1">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">👾</div>
+                        <div class="part-name">Alien</div>
+                    </div>
+                    <div class="part-item locked" data-part="body" data-emoji="📦" data-level="2">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">📦</div>
+                        <div class="part-name">Corpo</div>
+                    </div>
+                    <div class="part-item locked" data-part="body" data-emoji="🎮" data-level="2">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">🎮</div>
+                        <div class="part-name">GameBox</div>
+                    </div>
+                    <div class="part-item locked" data-part="arm-left" data-emoji="🦾" data-level="3">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">🦾</div>
+                        <div class="part-name">Braço Esq</div>
+                    </div>
+                    <div class="part-item locked" data-part="arm-right" data-emoji="🦾" data-level="3">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">🦾</div>
+                        <div class="part-name">Braço Dir</div>
+                    </div>
+                    <div class="part-item locked" data-part="legs" data-emoji="🦿" data-level="4">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">🦿</div>
+                        <div class="part-name">Pernas</div>
+                    </div>
+                    <div class="part-item locked" data-part="legs" data-emoji="⚙️" data-level="4">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">⚙️</div>
+                        <div class="part-name">Rodas</div>
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 25px;">⚔️ Armas</h2>
+                <div class="parts-grid">
+                    <div class="part-item locked" data-part="weapon" data-emoji="🔫" data-level="5">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">🔫</div>
+                        <div class="part-name">Pistola</div>
+                    </div>
+                    <div class="part-item locked" data-part="weapon" data-emoji="⚔️" data-level="5">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">⚔️</div>
+                        <div class="part-name">Espada</div>
+                    </div>
+                    <div class="part-item locked" data-part="weapon" data-emoji="🔨" data-level="5">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">🔨</div>
+                        <div class="part-name">Martelo</div>
+                    </div>
+                    <div class="part-item locked" data-part="weapon" data-emoji="🪓" data-level="5">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">🪓</div>
+                        <div class="part-name">Machado</div>
+                    </div>
+                </div>
+
+                <h2 style="margin-top: 25px;">✨ Acessórios</h2>
+                <div class="parts-grid">
+                    <div class="part-item locked" data-part="accessory" data-emoji="👑" data-level="6">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">👑</div>
+                        <div class="part-name">Coroa</div>
+                    </div>
+                    <div class="part-item locked" data-part="accessory" data-emoji="🎩" data-level="6">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">🎩</div>
+                        <div class="part-name">Chapéu</div>
+                    </div>
+                    <div class="part-item locked" data-part="accessory" data-emoji="🕶️" data-level="6">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">🕶️</div>
+                        <div class="part-name">Óculos</div>
+                    </div>
+                    <div class="part-item locked" data-part="accessory" data-emoji="🦴" data-level="6">
+                        <div class="lock-icon">🔒</div>
+                        <div class="part-icon">🦴</div>
+                        <div class="part-name">Osso</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área Central do Robô -->
+            <div class="panel robot-area">
+                <h2>🎨 Seu Robô</h2>
+                <div class="robot-canvas" id="robotCanvas">
+                    <div class="robot-part robot-head" data-part="head">🤖</div>
+                    <div class="robot-part robot-body" data-part="body">📦</div>
+                    <div class="robot-part robot-arm-left" data-part="arm-left">🦾</div>
+                    <div class="robot-part robot-arm-right" data-part="arm-right">🦾</div>
+                    <div class="robot-part robot-legs" data-part="legs">🦿</div>
+                </div>
+                
+                <div class="robot-stats">
+                    <div class="stat-bar">
+                        <div class="stat-label">
+                            <span>⚡ Poder</span>
+                            <span id="powerValue">50</span>
+                        </div>
+                        <div class="stat-progress">
+                            <div class="stat-fill" id="powerBar" style="width: 50%"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">
+                            <span>🛡️ Defesa</span>
+                            <span id="defenseValue">50</span>
+                        </div>
+                        <div class="stat-progress">
+                            <div class="stat-fill" id="defenseBar" style="width: 50%; background: linear-gradient(90deg, #4dabf7, #339af0);"></div>
+                        </div>
+                    </div>
+                    <div class="stat-bar">
+                        <div class="stat-label">
+                            <span>⚙️ Velocidade</span>
+                            <span id="speedValue">50</span>
+                        </div>
+                        <div class="stat-progress">
+                            <div class="stat-fill" id="speedBar" style="width: 50%; background: linear-gradient(90deg, #ffd93d, #f6c23e);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Painel de Personalização -->
+            <div class="panel">
+                <h2>🎨 Personalizar</h2>
+                
+                <div class="customization-section">
+                    <h3>🌈 Cores</h3>
+                    <div class="color-picker" id="colorPicker">
+                        <div class="color-option" style="background: #ff6b6b;" data-color="#ff6b6b"></div>
+                        <div class="color-option" style="background: #4dabf7;" data-color="#4dabf7"></div>
+                        <div class="color-option" style="background: #51cf66;" data-color="#51cf66"></div>
+                        <div class="color-option" style="background: #ffd93d;" data-color="#ffd93d"></div>
+                        <div class="color-option" style="background: #a78bfa;" data-color="#a78bfa"></div>
+                        <div class="color-option" style="background: #f783ac;" data-color="#f783ac"></div>
+                        <div class="color-option" style="background: #ff922b;" data-color="#ff922b"></div>
+                        <div class="color-option" style="background: #845ef7;" data-color="#845ef7"></div>
+                    </div>
+                </div>
+
+                <div class="customization-section">
+                    <h3>🎬 Ações</h3>
+                    <button class="action-btn btn-animate" onclick="animateRobot('dance')">💃 Dançar</button>
+                    <button class="action-btn btn-animate" onclick="animateRobot('jump')">🦘 Pular</button>
+                    <button class="action-btn btn-animate" onclick="animateRobot('spin')">🌀 Girar</button>
+                    <button class="action-btn btn-random" onclick="randomRobot()">🎲 Aleatório</button>
+                    <button class="action-btn btn-save" onclick="saveRobot()">💾 Salvar</button>
+                    <button class="action-btn btn-clear" onclick="clearRobot()">🗑️ Limpar</button>
+                </div>
+
+                <div class="customization-section">
+                    <h3>📸 Galeria</h3>
+                    <div class="gallery" id="gallery"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
