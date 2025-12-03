@@ -14,18 +14,68 @@ function createStars() {
 }
 createStars();
 
+// Criar detalhes humanoides do corpo do robô
+function createRobotBodyDetails() {
+    const bodyPart = document.querySelector('.robot-body');
+    if (!bodyPart || bodyPart.querySelector('.robot-body-detail-left')) return;
+    
+    // Painéis laterais
+    const detailLeft = document.createElement('div');
+    detailLeft.className = 'robot-body-detail-left';
+    bodyPart.appendChild(detailLeft);
+    
+    const detailRight = document.createElement('div');
+    detailRight.className = 'robot-body-detail-right';
+    bodyPart.appendChild(detailRight);
+    
+    // Ombros
+    const shoulderLeft = document.createElement('div');
+    shoulderLeft.className = 'robot-body-shoulder-left';
+    bodyPart.appendChild(shoulderLeft);
+    
+    const shoulderRight = document.createElement('div');
+    shoulderRight.className = 'robot-body-shoulder-right';
+    bodyPart.appendChild(shoulderRight);
+    
+    // Base/cintura
+    const base = document.createElement('div');
+    base.className = 'robot-body-base';
+    bodyPart.appendChild(base);
+    
+    // Criar MÃOS
+    createRobotHands();
+}
+
+// Criar mãos do robô para segurar armas/acessórios
+function createRobotHands() {
+    const bodyPart = document.querySelector('.robot-body');
+    if (!bodyPart || bodyPart.querySelector('.robot-hand-left')) return;
+    
+    // Mão esquerda
+    const handLeft = document.createElement('div');
+    handLeft.className = 'robot-hand-left';
+    bodyPart.appendChild(handLeft);
+    
+    // Mão direita (onde fica a arma)
+    const handRight = document.createElement('div');
+    handRight.className = 'robot-hand-right';
+    bodyPart.appendChild(handRight);
+}
+
+// Inicializar detalhes do corpo após carregar
+setTimeout(() => {
+    createRobotBodyDetails();
+}, 100);
+
 // Sistema de Quiz de Matemática
 let currentLevel = 1;
 let correctAnswers = 0;
 let currentQuestion = null;
 
 const mathLevels = {
-    1: { name: 'Adição Básica', unlock: 'Cabeças', operation: 'add', max: 10 },
-    2: { name: 'Subtração', unlock: 'Corpos', operation: 'subtract', max: 20 },
-    3: { name: 'Multiplicação', unlock: 'Braços', operation: 'multiply', max: 10 },
-    4: { name: 'Divisão', unlock: 'Pernas', operation: 'divide', max: 50 },
-    5: { name: 'Avançado', unlock: 'Armas', operation: 'mixed', max: 20 },
-    6: { name: 'Expert', unlock: 'Acessórios', operation: 'complex', max: 30 }
+    1: { name: 'Básico', unlock: 'Cabeças', operation: 'add', max: 10 },
+    2: { name: 'Intermediário', unlock: 'Armas', operation: 'multiply', max: 10 },
+    3: { name: 'Avançado', unlock: 'Acessórios', operation: 'mixed', max: 20 }
 };
 
 function generateQuestion() {
@@ -166,7 +216,7 @@ function unlockLevel() {
         document.getElementById('currentLevel').textContent = currentLevel;
         document.getElementById('correctAnswers').textContent = correctAnswers;
 
-        if (currentLevel <= 6) {
+        if (currentLevel <= 3) {
             generateQuestion();
         } else {
             message.textContent = '🏆 Parabéns! Todas as peças desbloqueadas!';
@@ -182,7 +232,7 @@ generateQuestion();
 // Estado do robô
 let robotParts = {
     head: '🤖',
-    body: '📦',
+    body: null, // Corpo é CSS puro, não usa emoji
     'arm-left': '🦾',
     'arm-right': '🦾',
     legs: '🦿',
@@ -204,6 +254,7 @@ document.querySelectorAll('.part-item').forEach(item => {
 
         const partType = this.dataset.part;
         const emoji = this.dataset.emoji;
+        const bodyStyle = this.dataset.bodyStyle;
         
         // Efeito visual
         this.style.transform = 'scale(1.2) rotate(360deg)';
@@ -212,15 +263,41 @@ document.querySelectorAll('.part-item').forEach(item => {
         }, 300);
         
         robotParts[partType] = emoji;
+        
+        // Se for cabeça, mudar estilo do corpo
+        if (partType === 'head' && bodyStyle) {
+            changeBodyStyle(bodyStyle);
+        }
+        
         updateRobot();
         updateStats();
     });
 });
 
+// Mudar estilo do corpo baseado na cabeça
+function changeBodyStyle(style) {
+    const bodyPart = document.querySelector('.robot-body');
+    if (!bodyPart) return;
+    
+    // Remover todas as classes de estilo
+    bodyPart.classList.remove('alien-body', 'skeleton-body', 'eagle-body');
+    
+    // Adicionar nova classe se não for clássico
+    if (style !== 'classic') {
+        bodyPart.classList.add(style + '-body');
+    }
+}
+
 // Atualizar robô visual
 function updateRobot() {
     Object.keys(robotParts).forEach(partType => {
         const part = document.querySelector(`.robot-${partType}`);
+        
+        // Pular corpo, braços e pernas (são CSS puro agora)
+        if (partType === 'body' || partType === 'arm-left' || partType === 'arm-right' || partType === 'legs') {
+            return;
+        }
+        
         if (part && robotParts[partType]) {
             part.textContent = robotParts[partType];
             if (currentColor) {
@@ -230,6 +307,9 @@ function updateRobot() {
             part.textContent = '';
         }
     });
+    
+    // Recriar detalhes do corpo se necessário
+    createRobotBodyDetails();
 
     // Adicionar ou remover peças especiais
     let weaponEl = document.querySelector('.robot-weapon');
@@ -307,7 +387,6 @@ function animateRobot(type) {
 // Robô aleatório
 function randomRobot() {
     const heads = ['🤖', '👾', '🦾', '🎮', '👽', '🤡'];
-    const bodies = ['📦', '🎮', '📺', '🎰', '🎪'];
     const arms = ['🦾', '✊', '👊', '🤜'];
     const legs = ['🦿', '⚙️', '🛞', '⭕'];
     const weapons = ['🔫', '⚔️', '🔨', '🪓', '🏹', '🔪'];
@@ -315,7 +394,7 @@ function randomRobot() {
 
     robotParts = {
         head: heads[Math.floor(Math.random() * heads.length)],
-        body: bodies[Math.floor(Math.random() * bodies.length)],
+        body: null, // Corpo é CSS puro, não usa emoji
         'arm-left': arms[Math.floor(Math.random() * arms.length)],
         'arm-right': arms[Math.floor(Math.random() * arms.length)],
         legs: legs[Math.floor(Math.random() * legs.length)],
@@ -352,7 +431,7 @@ function clearRobot() {
     if (confirm('Tem certeza que deseja limpar o robô?')) {
         robotParts = {
             head: '🤖',
-            body: '📦',
+            body: null, // Corpo é CSS puro
             'arm-left': '🦾',
             'arm-right': '🦾',
             legs: '🦿',
@@ -495,7 +574,7 @@ document.addEventListener('touchend', () => {
 let welcomeShown = sessionStorage.getItem('welcomeShown');
 if (!welcomeShown) {
     setTimeout(() => {
-        alert('🤖 Bem-vindo à Amostra Literária! 🤖\n\n📚 Responda perguntas de matemática para desbloquear peças!\n🎯 5 respostas corretas = 1 nível completo\n✨ 6 níveis para desbloquear todas as peças\n🎨 Personalize e divirta-se!\n\nBoa sorte! 🚀');
+        alert('🤖 Bem-vindo à Mostra Literária! 🤖\n\n📚 Responda perguntas de matemática para desbloquear peças!\n🎯 5 respostas corretas = 1 nível completo\n✨ 3 níveis para desbloquear todas as peças\n🎨 Cada cabeça tem um corpo diferente!\n\nBoa sorte! 🚀');
         sessionStorage.setItem('welcomeShown', 'true');
     }, 500);
 }
