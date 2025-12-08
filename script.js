@@ -17,7 +17,11 @@ createStars();
 // Criar detalhes humanoides do corpo do robô
 function createRobotBodyDetails() {
     const bodyPart = document.querySelector('.robot-body');
-    if (!bodyPart || bodyPart.querySelector('.robot-body-detail-left')) return;
+    if (!bodyPart) return;
+    
+    // Limpar detalhes existentes
+    bodyPart.querySelectorAll('[class*="robot-body-"]').forEach(el => el.remove());
+    bodyPart.querySelectorAll('.robot-hand-left, .robot-hand-right').forEach(el => el.remove());
     
     // Painéis laterais
     const detailLeft = document.createElement('div');
@@ -49,7 +53,10 @@ function createRobotBodyDetails() {
 // Criar mãos do robô para segurar armas/acessórios
 function createRobotHands() {
     const bodyPart = document.querySelector('.robot-body');
-    if (!bodyPart || bodyPart.querySelector('.robot-hand-left')) return;
+    if (!bodyPart) return;
+    
+    // Remover mãos existentes
+    bodyPart.querySelectorAll('.robot-hand-left, .robot-hand-right').forEach(el => el.remove());
     
     // Mão esquerda
     const handLeft = document.createElement('div');
@@ -61,11 +68,6 @@ function createRobotHands() {
     handRight.className = 'robot-hand-right';
     bodyPart.appendChild(handRight);
 }
-
-// Inicializar detalhes do corpo após carregar
-setTimeout(() => {
-    createRobotBodyDetails();
-}, 100);
 
 // Sistema de Quiz de Matemática
 let currentLevel = 1;
@@ -229,21 +231,20 @@ function unlockLevel() {
 // Iniciar quiz
 generateQuestion();
 
-// Estado do robô
+// Estado do robô - suporta múltiplas peças do mesmo tipo
 let robotParts = {
-    head: '🤖',
-    body: null, // Corpo é CSS puro, não usa emoji
-    'arm-left': '🦾',
-    'arm-right': '🦾',
-    legs: '🦿',
-    weapon: null,
+    heads: [], // Múltiplas cabeças
+    body: null,
+    arms: [], // Múltiplos braços
+    legs: null,
+    weapons: [], // Múltiplas armas
     accessory: null
 };
 
 let currentColor = null;
 let savedRobots = JSON.parse(localStorage.getItem('savedRobots') || '[]');
 
-// Adicionar peça ao robô
+// Adicionar peça ao robô - criar elemento no canvas
 document.querySelectorAll('.part-item').forEach(item => {
     item.addEventListener('click', function() {
         // Verificar se está bloqueado
@@ -262,17 +263,104 @@ document.querySelectorAll('.part-item').forEach(item => {
             this.style.transform = '';
         }, 300);
         
-        robotParts[partType] = emoji;
+        // Tipos que permitem múltiplas peças
+        const multipleTypes = ['head', 'arm-left', 'arm-right', 'weapon'];
         
-        // Se for cabeça, mudar estilo do corpo
-        if (partType === 'head' && bodyStyle) {
-            changeBodyStyle(bodyStyle);
+        if (partType === 'body') {
+            // Corpo - apenas um, mas pode trocar estilo
+            let existingBody = document.querySelector('.robot-body');
+            if (existingBody) {
+                if (bodyStyle) changeBodyStyle(bodyStyle);
+            } else {
+                robotParts.body = { emoji: '', bodyStyle: bodyStyle };
+                addPartToCanvas(partType, emoji, bodyStyle);
+            }
+        } else if (multipleTypes.includes(partType)) {
+            // Criar nova peça (permite múltiplas)
+            addPartToCanvas(partType, emoji, bodyStyle);
+            
+            // Armazenar no array apropriado
+            if (partType === 'head') {
+                robotParts.heads.push({ emoji, bodyStyle });
+            } else if (partType === 'arm-left' || partType === 'arm-right') {
+                robotParts.arms.push({ emoji, type: partType });
+            } else if (partType === 'weapon') {
+                robotParts.weapons.push(emoji);
+            }
+        } else {
+            // Peças únicas (pernas, acessórios)
+            let existingPart = document.querySelector(`.robot-${partType}`);
+            if (existingPart) {
+                if (partType !== 'body') {
+                    existingPart.textContent = emoji;
+                }
+                robotParts[partType] = emoji;
+            } else {
+                robotParts[partType] = emoji;
+                addPartToCanvas(partType, emoji, bodyStyle);
+            }
         }
         
-        updateRobot();
         updateStats();
     });
 });
+
+// Adicionar peça ao canvas
+function addPartToCanvas(partType, emoji, bodyStyle) {
+    const canvas = document.getElementById('robotCanvas');
+    
+    // Remover mensagem de início se existir
+    const initialMessage = canvas.querySelector('div:not(.robot-part)');
+    if (initialMessage && initialMessage.innerHTML.includes('Desbloqueie')) {
+        initialMessage.remove();
+    }
+    
+    const part = document.createElement('div');
+    part.className = `robot-part robot-${partType}`;
+    part.dataset.part = partType;
+    
+    // Verificar quantas peças do mesmo tipo já existem
+    const existingCount = canvas.querySelectorAll(`.robot-${partType}`).length;
+    
+    // Posições iniciais sugeridas
+    const basePositions = {
+        head: { top: '10%', left: '50%' },
+        body: { top: '30%', left: '50%' },
+        'arm-left': { top: '35%', left: '30%' },
+        'arm-right': { top: '35%', left: '70%' },
+        legs: { top: '60%', left: '50%' },
+        weapon: { top: '40%', left: '75%' },
+        accessory: { top: '5%', left: '50%' }
+    };
+    
+    // Se já existem peças do mesmo tipo, posicionar de forma distribuída
+    if (existingCount > 0) {
+        const offset = existingCount * 15; // Offset de 15% para cada nova peça
+        const randomTop = Math.random() * 60 + 10; // Entre 10% e 70%
+        const randomLeft = Math.random() * 60 + 20; // Entre 20% e 80%
+        part.style.top = randomTop + '%';
+        part.style.left = randomLeft + '%';
+    } else if (basePositions[partType]) {
+        part.style.top = basePositions[partType].top;
+        part.style.left = basePositions[partType].left;
+    }
+    
+    // Adicionar conteúdo (texto emoji)
+    if (partType !== 'body') {
+        part.textContent = emoji;
+    }
+    
+    // Adicionar ao canvas PRIMEIRO
+    canvas.appendChild(part);
+    
+    // Corpo é especial - criar detalhes DEPOIS de adicionar ao DOM
+    if (partType === 'body') {
+        createRobotBodyDetails();
+    }
+    
+    // Animação de entrada
+    part.style.animation = 'fadeInScale 0.5s ease';
+}
 
 // Mudar estilo do corpo baseado na cabeça
 function changeBodyStyle(style) {
@@ -288,47 +376,26 @@ function changeBodyStyle(style) {
     }
 }
 
-// Atualizar robô visual
+// Atualizar robô visual - apenas atualiza peças existentes
 function updateRobot() {
     Object.keys(robotParts).forEach(partType => {
         const part = document.querySelector(`.robot-${partType}`);
         
-        // Pular corpo, braços e pernas (são CSS puro agora)
-        if (partType === 'body' || partType === 'arm-left' || partType === 'arm-right' || partType === 'legs') {
-            return;
-        }
-        
         if (part && robotParts[partType]) {
-            part.textContent = robotParts[partType];
+            // Atualizar apenas peças que não são corpo
+            if (partType !== 'body') {
+                part.textContent = robotParts[partType];
+            }
             if (currentColor) {
                 part.style.filter = `drop-shadow(0 0 10px ${currentColor})`;
             }
-        } else if (part && !robotParts[partType]) {
-            part.textContent = '';
         }
     });
     
-    // Recriar detalhes do corpo se necessário
-    createRobotBodyDetails();
-
-    // Adicionar ou remover peças especiais
-    let weaponEl = document.querySelector('.robot-weapon');
-    if (robotParts.weapon && !weaponEl) {
-        weaponEl = document.createElement('div');
-        weaponEl.className = 'robot-part robot-weapon';
-        weaponEl.dataset.part = 'weapon';
-        document.getElementById('robotCanvas').appendChild(weaponEl);
+    // Recriar detalhes do corpo se existir
+    if (document.querySelector('.robot-body')) {
+        createRobotBodyDetails();
     }
-    if (weaponEl) weaponEl.textContent = robotParts.weapon || '';
-
-    let accessoryEl = document.querySelector('.robot-accessory');
-    if (robotParts.accessory && !accessoryEl) {
-        accessoryEl = document.createElement('div');
-        accessoryEl.className = 'robot-part robot-accessory';
-        accessoryEl.dataset.part = 'accessory';
-        document.getElementById('robotCanvas').appendChild(accessoryEl);
-    }
-    if (accessoryEl) accessoryEl.textContent = robotParts.accessory || '';
 }
 
 // Sistema de cores
@@ -351,27 +418,40 @@ function updateStats() {
     let speed = 30;
 
     // Calcular baseado nas peças
-    if (robotParts.weapon) power += 40;
-    if (robotParts.body) defense += 30;
+    power += robotParts.weapons.length * 15; // Cada arma adiciona 15 de poder
+    power += robotParts.heads.length * 10; // Cada cabeça adiciona 10 de poder
+    
+    if (robotParts.body) {
+        defense += 30;
+        // Corpo de dragão dá bônus extra
+        if (robotParts.body.bodyStyle === 'dragon') {
+            defense += 20;
+            power += 20;
+        }
+    }
+    
     if (robotParts.legs) speed += 40;
+    
+    speed += robotParts.arms.length * 8; // Cada braço adiciona velocidade
+    
     if (robotParts.accessory) {
         power += 10;
         defense += 10;
         speed += 10;
     }
 
-    power = Math.min(power, 100);
-    defense = Math.min(defense, 100);
-    speed = Math.min(speed, 100);
+    power = Math.min(power, 150); // Aumentar limite por causa de múltiplas peças
+    defense = Math.min(defense, 150);
+    speed = Math.min(speed, 150);
 
     document.getElementById('powerValue').textContent = power;
-    document.getElementById('powerBar').style.width = power + '%';
+    document.getElementById('powerBar').style.width = (power / 150 * 100) + '%';
     
     document.getElementById('defenseValue').textContent = defense;
-    document.getElementById('defenseBar').style.width = defense + '%';
+    document.getElementById('defenseBar').style.width = (defense / 150 * 100) + '%';
     
     document.getElementById('speedValue').textContent = speed;
-    document.getElementById('speedBar').style.width = speed + '%';
+    document.getElementById('speedBar').style.width = (speed / 150 * 100) + '%';
 }
 
 // Animações
@@ -384,25 +464,81 @@ function animateRobot(type) {
     }, 10);
 }
 
-// Robô aleatório
+// Robô aleatório - apenas com peças desbloqueadas
 function randomRobot() {
-    const heads = ['🤖', '👾', '🦾', '🎮', '👽', '🤡'];
-    const arms = ['🦾', '✊', '👊', '🤜'];
-    const legs = ['🦿', '⚙️', '🛞', '⭕'];
-    const weapons = ['🔫', '⚔️', '🔨', '🪓', '🏹', '🔪'];
-    const accessories = ['👑', '🎩', '🕶️', '🦴', '🎀', '⭐'];
+    // Limpar robô atual
+    document.getElementById('robotCanvas').innerHTML = '';
+    
+    // Resetar arrays
+    robotParts.heads = [];
+    robotParts.arms = [];
+    robotParts.weapons = [];
+    
+    // Pegar apenas peças desbloqueadas
+    
+    // Corpo
+    const bodies = Array.from(document.querySelectorAll('.part-item[data-part="body"]:not(.locked)'));
+    if (bodies.length > 0) {
+        const randomBody = bodies[Math.floor(Math.random() * bodies.length)];
+        robotParts.body = { emoji: '', bodyStyle: randomBody.dataset.bodyStyle || 'classic' };
+        addPartToCanvas('body', '', robotParts.body.bodyStyle);
+    }
+    
+    // Cabeças (1-3 aleatórias)
+    const heads = Array.from(document.querySelectorAll('.part-item[data-part="head"]:not(.locked)'));
+    if (heads.length > 0) {
+        const numHeads = Math.min(Math.floor(Math.random() * 3) + 1, heads.length);
+        for (let i = 0; i < numHeads; i++) {
+            const randomHead = heads[Math.floor(Math.random() * heads.length)];
+            const headData = { emoji: randomHead.dataset.emoji, bodyStyle: randomHead.dataset.bodyStyle };
+            robotParts.heads.push(headData);
+            addPartToCanvas('head', headData.emoji, headData.bodyStyle);
+        }
+    }
+    
+    // Braços (2-4 aleatórios)
+    const armsLeft = Array.from(document.querySelectorAll('.part-item[data-part="arm-left"]:not(.locked)'));
+    const armsRight = Array.from(document.querySelectorAll('.part-item[data-part="arm-right"]:not(.locked)'));
+    if (armsLeft.length > 0) {
+        const numArms = Math.min(Math.floor(Math.random() * 3) + 2, 4);
+        for (let i = 0; i < numArms; i++) {
+            const isLeft = i % 2 === 0;
+            const armType = isLeft ? 'arm-left' : 'arm-right';
+            const armList = isLeft ? armsLeft : armsRight;
+            const randomArm = armList[Math.floor(Math.random() * armList.length)];
+            const armData = { emoji: randomArm.dataset.emoji, type: armType };
+            robotParts.arms.push(armData);
+            addPartToCanvas(armType, armData.emoji, null);
+        }
+    }
+    
+    // Pernas
+    const legs = Array.from(document.querySelectorAll('.part-item[data-part="legs"]:not(.locked)'));
+    if (legs.length > 0) {
+        const randomLeg = legs[Math.floor(Math.random() * legs.length)];
+        robotParts.legs = randomLeg.dataset.emoji;
+        addPartToCanvas('legs', robotParts.legs, null);
+    }
+    
+    // Armas (1-3 aleatórias)
+    const weapons = Array.from(document.querySelectorAll('.part-item[data-part="weapon"]:not(.locked)'));
+    if (weapons.length > 0) {
+        const numWeapons = Math.min(Math.floor(Math.random() * 3) + 1, weapons.length);
+        for (let i = 0; i < numWeapons; i++) {
+            const randomWeapon = weapons[Math.floor(Math.random() * weapons.length)];
+            robotParts.weapons.push(randomWeapon.dataset.emoji);
+            addPartToCanvas('weapon', randomWeapon.dataset.emoji, null);
+        }
+    }
+    
+    // Acessório
+    const accessories = Array.from(document.querySelectorAll('.part-item[data-part="accessory"]:not(.locked)'));
+    if (accessories.length > 0) {
+        const randomAccessory = accessories[Math.floor(Math.random() * accessories.length)];
+        robotParts.accessory = randomAccessory.dataset.emoji;
+        addPartToCanvas('accessory', robotParts.accessory, null);
+    }
 
-    robotParts = {
-        head: heads[Math.floor(Math.random() * heads.length)],
-        body: null, // Corpo é CSS puro, não usa emoji
-        'arm-left': arms[Math.floor(Math.random() * arms.length)],
-        'arm-right': arms[Math.floor(Math.random() * arms.length)],
-        legs: legs[Math.floor(Math.random() * legs.length)],
-        weapon: weapons[Math.floor(Math.random() * weapons.length)],
-        accessory: accessories[Math.floor(Math.random() * accessories.length)]
-    };
-
-    updateRobot();
     updateStats();
     animateRobot('spin');
 }
@@ -428,18 +564,27 @@ function saveRobot() {
 
 // Limpar robô
 function clearRobot() {
-    if (confirm('Tem certeza que deseja limpar o robô?')) {
+    if (confirm('Tem certeza que deseja desmontar o robô?')) {
         robotParts = {
-            head: '🤖',
-            body: null, // Corpo é CSS puro
-            'arm-left': '🦾',
-            'arm-right': '🦾',
-            legs: '🦿',
-            weapon: null,
+            heads: [],
+            body: null,
+            arms: [],
+            legs: null,
+            weapons: [],
             accessory: null
         };
         currentColor = null;
-        updateRobot();
+        
+        // Remover todas as peças do canvas
+        const canvas = document.getElementById('robotCanvas');
+        canvas.innerHTML = '';
+        
+        // Adicionar mensagem inicial de volta
+        const message = document.createElement('div');
+        message.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #999; font-size: 1.2em;';
+        message.innerHTML = '🔧<br>Desbloqueie e arraste<br>as peças para montar<br>seu robô!';
+        canvas.appendChild(message);
+        
         updateStats();
         document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
     }
@@ -453,8 +598,9 @@ function updateGallery() {
     savedRobots.forEach((robot, index) => {
         const item = document.createElement('div');
         item.className = 'gallery-item';
+        const displayHead = robot.parts.heads && robot.parts.heads.length > 0 ? robot.parts.heads[0].emoji : '🤖';
         item.innerHTML = `
-            <div class="gallery-robot">${robot.parts.head || '🤖'}</div>
+            <div class="gallery-robot">${displayHead}</div>
             <div class="gallery-name">${robot.name}</div>
         `;
         item.addEventListener('click', () => loadRobot(index));
@@ -465,14 +611,59 @@ function updateGallery() {
 // Carregar robô da galeria
 function loadRobot(index) {
     const robot = savedRobots[index];
-    robotParts = {...robot.parts};
+    
+    // Limpar canvas
+    const canvas = document.getElementById('robotCanvas');
+    canvas.innerHTML = '';
+    
+    // Restaurar estado do robô
+    robotParts = JSON.parse(JSON.stringify(robot.parts));
+    
+    // Recriar corpo se existir
+    if (robotParts.body) {
+        addPartToCanvas('body', '', robotParts.body.bodyStyle);
+    }
+    
+    // Recriar cabeças
+    if (robotParts.heads) {
+        robotParts.heads.forEach(head => {
+            addPartToCanvas('head', head.emoji, head.bodyStyle);
+        });
+    }
+    
+    // Recriar braços
+    if (robotParts.arms) {
+        robotParts.arms.forEach(arm => {
+            addPartToCanvas(arm.type, arm.emoji, null);
+        });
+    }
+    
+    // Recriar pernas
+    if (robotParts.legs) {
+        addPartToCanvas('legs', robotParts.legs, null);
+    }
+    
+    // Recriar armas
+    if (robotParts.weapons) {
+        robotParts.weapons.forEach(weapon => {
+            addPartToCanvas('weapon', weapon, null);
+        });
+    }
+    
+    // Recriar acessório
+    if (robotParts.accessory) {
+        addPartToCanvas('accessory', robotParts.accessory, null);
+    }
+    
     currentColor = robot.color;
-    updateRobot();
     updateStats();
     
     if (currentColor) {
         document.querySelectorAll('.color-option').forEach(option => {
             option.classList.toggle('selected', option.dataset.color === currentColor);
+        });
+        document.querySelectorAll('.robot-part').forEach(part => {
+            part.style.filter = `drop-shadow(0 0 15px ${currentColor})`;
         });
     }
     
@@ -480,9 +671,17 @@ function loadRobot(index) {
 }
 
 // Inicializar
-updateRobot();
 updateStats();
 updateGallery();
+
+// Mostrar mensagem de início
+const canvas = document.getElementById('robotCanvas');
+if (canvas.children.length === 0) {
+    const message = document.createElement('div');
+    message.style.cssText = 'position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #999; font-size: 1.2em;';
+    message.innerHTML = '🔧<br>Desbloqueie e arraste<br>as peças para montar<br>seu robô!';
+    canvas.appendChild(message);
+}
 
 // Arrastar peças do robô
 let draggedElement = null;
@@ -574,7 +773,7 @@ document.addEventListener('touchend', () => {
 let welcomeShown = sessionStorage.getItem('welcomeShown');
 if (!welcomeShown) {
     setTimeout(() => {
-        alert('🤖 Bem-vindo à Mostra Literária! 🤖\n\n📚 Responda perguntas de matemática para desbloquear peças!\n🎯 5 respostas corretas = 1 nível completo\n✨ 3 níveis para desbloquear todas as peças\n🎨 Cada cabeça tem um corpo diferente!\n\nBoa sorte! 🚀');
+        alert('🤖 Bem-vindo à Mostra Literária! 🤖\n\n📚 Responda perguntas de matemática para desbloquear peças!\n🎯 5 respostas corretas = 1 nível completo\n\nNível 1: Cabeças Básicas + Corpo + Braços + Pernas\nNível 2: 🐲 CORPO DE DRAGÃO + Cabeças Épicas + Braços Extra + Armas\nNível 3: Acessórios\n\n🔥 NOVIDADE: Equipe MÚLTIPLAS cabeças, braços e armas!\n🐉 Corpo de Dragão Robótico é ÉPICO!\n🔧 Monte seu robô arrastando as peças!\n🎨 Personalize com cores e animações!\n\nBoa sorte! 🚀');
         sessionStorage.setItem('welcomeShown', 'true');
     }, 500);
 }

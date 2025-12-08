@@ -99,6 +99,17 @@ h1 {
     to { opacity: 1; transform: scale(1); }
 }
 
+@keyframes fadeInScale {
+    from { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) scale(0.3); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1); 
+    }
+}
+
 .panel h2 {
     color: #667eea;
     margin-bottom: 15px;
@@ -226,6 +237,9 @@ h1 {
     z-index: 5;
     position: absolute;
     font-size: 0;
+    min-width: 120px;
+    min-height: 200px;
+    pointer-events: auto;
 }
 
 /* Torso principal - RETANGULAR */
@@ -284,6 +298,238 @@ h1 {
         0 0 25px #fab005,
         0 0 50px rgba(250, 176, 5, 0.5),
         inset 0 3px 8px rgba(255,255,255,0.8);
+}
+
+/* Corpo DRAGÃO - Épico e Gigante ROBÓTICO */
+.robot-body.dragon-body {
+    width: 180px !important;
+    height: 280px !important;
+    transform: translateX(-50%) scale(1.3);
+}
+
+.robot-body.dragon-body::before {
+    width: 140px;
+    height: 200px;
+    background: 
+        linear-gradient(135deg, transparent 0%, transparent 48%, #2b8a3e 48%, #2b8a3e 52%, transparent 52%, transparent 100%),
+        linear-gradient(45deg, transparent 0%, transparent 48%, #2b8a3e 48%, #2b8a3e 52%, transparent 52%, transparent 100%),
+        repeating-linear-gradient(
+            90deg,
+            #3d4f5c 0px,
+            #3d4f5c 3px,
+            transparent 3px,
+            transparent 6px
+        ),
+        linear-gradient(180deg, 
+            #ff6b6b 0%, 
+            #ee5a52 15%,
+            #fa5252 30%, 
+            #c92a2a 50%, 
+            #862e9c 70%,
+            #5f3dc4 100%);
+    border: 5px solid #2b8a3e;
+    border-radius: 20px 20px 10px 10px;
+    box-shadow: 
+        inset 0 15px 30px rgba(255,255,255,0.3),
+        inset 0 -15px 30px rgba(0,0,0,0.7),
+        inset 5px 5px 15px rgba(43, 138, 62, 0.3),
+        inset -5px 5px 15px rgba(43, 138, 62, 0.3),
+        0 10px 40px rgba(201, 42, 42, 0.8),
+        0 0 60px rgba(255, 107, 107, 0.6),
+        0 0 30px rgba(43, 138, 62, 0.5);
+    animation: dragonPulse 2.5s infinite;
+    position: relative;
+}
+
+/* Placas metálicas do dragão robótico */
+.robot-body.dragon-body::before {
+    content: '';
+}
+
+@keyframes dragonPulse {
+    0%, 100% { 
+        box-shadow: 
+            inset 0 15px 30px rgba(255,255,255,0.3),
+            inset 0 -15px 30px rgba(0,0,0,0.7),
+            inset 5px 5px 15px rgba(43, 138, 62, 0.3),
+            inset -5px 5px 15px rgba(43, 138, 62, 0.3),
+            0 10px 40px rgba(201, 42, 42, 0.8),
+            0 0 60px rgba(255, 107, 107, 0.6),
+            0 0 30px rgba(43, 138, 62, 0.5);
+    }
+    50% { 
+        box-shadow: 
+            inset 0 15px 30px rgba(255,255,255,0.4),
+            inset 0 -15px 30px rgba(0,0,0,0.7),
+            inset 5px 5px 15px rgba(43, 138, 62, 0.5),
+            inset -5px 5px 15px rgba(43, 138, 62, 0.5),
+            0 15px 50px rgba(201, 42, 42, 1),
+            0 0 80px rgba(255, 107, 107, 0.8),
+            0 0 100px rgba(250, 82, 82, 0.4),
+            0 0 50px rgba(43, 138, 62, 0.7);
+    }
+}
+
+.robot-body.dragon-body::after {
+    width: 60px;
+    height: 60px;
+    background: 
+        radial-gradient(circle at 50% 50%, transparent 30%, #2b8a3e 30%, #2b8a3e 35%, transparent 35%),
+        radial-gradient(circle at 50% 50%, transparent 45%, #2b8a3e 45%, #2b8a3e 48%, transparent 48%),
+        radial-gradient(circle at 30% 30%, 
+            #ff8787 0%, 
+            #ff6b6b 20%,
+            #ff5252 40%,
+            #fa5252 60%, 
+            #c92a2a 100%);
+    border: 4px solid #2b8a3e;
+    top: 70px;
+    box-shadow: 
+        0 0 30px #ff6b6b,
+        0 0 60px #ff6b6b,
+        0 0 90px rgba(255, 107, 107, 0.5),
+        0 0 20px #2b8a3e,
+        inset 0 5px 15px rgba(255,255,255,0.9),
+        inset 0 -5px 15px rgba(0,0,0,0.5);
+    animation: dragonCore 2s infinite;
+}
+
+@keyframes dragonCore {
+    0%, 100% { 
+        box-shadow: 
+            0 0 25px #ff6b6b,
+            0 0 50px #ff6b6b,
+            0 0 15px #2b8a3e,
+            inset 0 3px 12px rgba(255,255,255,0.8),
+            inset 0 -3px 12px rgba(0,0,0,0.4);
+        transform: translateX(-50%) scale(1);
+    }
+    50% { 
+        box-shadow: 
+            0 0 40px #ff6b6b,
+            0 0 80px #ff6b6b,
+            0 0 120px rgba(255, 107, 107, 0.6),
+            0 0 30px #2b8a3e,
+            0 0 50px rgba(43, 138, 62, 0.5),
+            inset 0 3px 12px rgba(255,255,255,1),
+            inset 0 -3px 12px rgba(0,0,0,0.4);
+        transform: translateX(-50%) scale(1.1);
+    }
+}
+
+/* Escamas robóticas do dragão com detalhes mecânicos */
+.robot-body.dragon-body .robot-body-detail-left,
+.robot-body.dragon-body .robot-body-detail-right {
+    width: 38px;
+    height: 85px;
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            transparent 0px,
+            transparent 8px,
+            #2b8a3e 8px,
+            #2b8a3e 10px
+        ),
+        linear-gradient(135deg, #c92a2a 0%, #862e9c 50%, #5f3dc4 100%);
+    border: 4px solid #2b8a3e;
+    border-radius: 10px;
+    top: 35px;
+    box-shadow: 
+        inset 0 8px 15px rgba(0,0,0,0.6),
+        inset 0 -5px 12px rgba(255,107,107,0.3),
+        inset 3px 0 10px rgba(43, 138, 62, 0.4),
+        0 0 20px rgba(134, 46, 156, 0.6),
+        0 0 15px rgba(43, 138, 62, 0.5);
+}
+
+/* Parafusos e detalhes mecânicos nas escamas */
+.robot-body.dragon-body .robot-body-detail-left::before,
+.robot-body.dragon-body .robot-body-detail-right::before {
+    content: '⚙';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    color: #2b8a3e;
+    text-shadow: 0 0 5px #2b8a3e;
+    animation: rotateGear 3s linear infinite;
+}
+
+@keyframes rotateGear {
+    from { transform: translateX(-50%) rotate(0deg); }
+    to { transform: translateX(-50%) rotate(360deg); }
+}
+
+/* Ombros de dragão robótico - mais robustos e mecânicos */
+.robot-body.dragon-body .robot-body-shoulder-left,
+.robot-body.dragon-body .robot-body-shoulder-right {
+    width: 50px;
+    height: 55px;
+    background: 
+        linear-gradient(90deg, transparent 45%, #2b8a3e 45%, #2b8a3e 55%, transparent 55%),
+        linear-gradient(0deg, transparent 45%, #2b8a3e 45%, #2b8a3e 55%, transparent 55%),
+        linear-gradient(180deg, #ff6b6b 0%, #c92a2a 50%, #862e9c 100%);
+    border: 4px solid #2b8a3e;
+    border-radius: 12px;
+    box-shadow: 
+        inset 0 6px 12px rgba(255,255,255,0.3),
+        inset 0 -6px 12px rgba(0,0,0,0.6),
+        inset 0 0 15px rgba(43, 138, 62, 0.4),
+        0 6px 15px rgba(0,0,0,0.5),
+        0 0 25px rgba(255, 107, 107, 0.5),
+        0 0 20px rgba(43, 138, 62, 0.6);
+}
+
+/* Braços mecânicos de dragão */
+.robot-body.dragon-body .robot-body-shoulder-left::before,
+.robot-body.dragon-body .robot-body-shoulder-right::before {
+    background: 
+        repeating-linear-gradient(
+            0deg,
+            #2b8a3e 0px,
+            #2b8a3e 2px,
+            transparent 2px,
+            transparent 8px
+        ),
+        linear-gradient(90deg, #c92a2a 0%, #862e9c 50%, #5f3dc4 100%);
+    border: 3px solid #2b8a3e;
+    box-shadow: 
+        inset 0 5px 10px rgba(0,0,0,0.5),
+        inset 0 -3px 8px rgba(255,107,107,0.3),
+        0 0 15px rgba(43, 138, 62, 0.5);
+}
+
+/* Outros estilos de corpo */
+.robot-body.dino-body::before {
+    background: linear-gradient(180deg, #37b24d 0%, #2b8a3e 50%, #1e7830 100%);
+    border: 3px solid #1e7830;
+    border-radius: 15px;
+}
+
+.robot-body.dino-body::after {
+    background: radial-gradient(circle at 30% 30%, #69db7c 0%, #51cf66 30%, #37b24d 60%, #2b8a3e 100%);
+    border-color: #1e7830;
+}
+
+.robot-body.lion-body::before {
+    background: linear-gradient(180deg, #ffd43b 0%, #f59f00 50%, #e67700 100%);
+    border: 3px solid #d9480f;
+}
+
+.robot-body.lion-body::after {
+    background: radial-gradient(circle at 30% 30%, #ffe066 0%, #ffd43b 30%, #fcc419 60%, #f59f00 100%);
+    border-color: #d9480f;
+}
+
+.robot-body.wolf-body::before {
+    background: linear-gradient(180deg, #868e96 0%, #495057 50%, #212529 100%);
+    border: 3px solid #212529;
+}
+
+.robot-body.wolf-body::after {
+    background: radial-gradient(circle at 30% 30%, #adb5bd 0%, #868e96 30%, #495057 60%, #343a40 100%);
+    border-color: #212529;
 }
 
 /* Núcleo de energia central */
